@@ -11,22 +11,50 @@ export const productStore = defineStore('productStore', () => {
     const getProductsData = computed(() => productsData.value)
     const getActiveProductsAmount = computed(() => productsData.value.length)
 
+    const insertProductData = (data) => {
+        data && (productsData.value.push(data))
+    }
+
     const findProductIndexInArray = (productId) => {
-        productsData.value.findIndex((product) => product.id === data.id)
+        return productsData.value.findIndex((product) => product.id == productId)
     }
 
     const removeProductData = (productId) => {
         const productIndex = findProductIndexInArray(productId)
-    }
-
-    const setProductData = (data) => {
-        const productIndex = findProductIndexInArray(productId)
-        productIndex !== 1 && (productsData[productIndex] = data)
+        productIndex !== -1 && (productsData.value.splice(productIndex, 1))
     }
 
     const setProductsData = (data) => {
         productsData.value = Array.isArray(data) ? data : []
-        console.log("Products: ", productsData.value)
+    }
+
+    const setProductData = (data) => {
+        const productIndex = findProductIndexInArray(data?.id)
+        productIndex !== 1 && (productsData.value[productIndex] = data)
+    }
+
+    const requestUpdateProduct = async (payload) => {
+        try {
+            const response = await productService.updateProduct(payload)
+            setProductData(response)
+            notificationModule.activeSuccessNotification("Product Updated!")
+            return true
+        } catch (error) {
+            notificationModule.activeErrorNotification(error)
+            return false
+        }
+    }
+
+    const requestCreateProduct = async (payload) => {
+        try {
+            const response = await productService.createProduct(payload)
+            insertProductData(response)
+            notificationModule.activeSuccessNotification("Product Created!")
+            return true
+        } catch (error) {
+            notificationModule.activeErrorNotification(error)
+            return false
+        }
     }
 
     const requestProductsData = async () => {
@@ -38,8 +66,21 @@ export const productStore = defineStore('productStore', () => {
         }
     }
 
+    const requestDeleteProduct = async (productId) => {
+        try {
+            await productService.deleteProduct(productId)
+            removeProductData(productId)
+            notificationModule.activeSuccessNotification("Product Deleted!")
+        } catch (error) {
+            notificationModule.activeErrorNotification(error)
+        }
+    }
+
     return {
         getActiveProductsAmount,
+        requestUpdateProduct,
+        requestCreateProduct,
+        requestDeleteProduct,
         requestProductsData,
         productsData,
         getProductsData,

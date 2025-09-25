@@ -49,7 +49,7 @@ const router = createRouter({
       component: () => import('@/views/ProductsListView.vue'),
       beforeEnter: async (to, from, next) => {
         try {
-          validateUserHasAccesToView('manager')
+          validateUserHasAccesToView('client')
           next()
         } catch {
           next({ name: 'AuthView' })
