@@ -1,21 +1,23 @@
 import { authStore } from '@/stores/authStore'
+import { productStore } from '@/stores/productStore'
 import { createRouter, createWebHistory } from 'vue-router'
 
-const validateUserHasAccesToView = (allowedRole: string, userRole: string | undefined): boolean => {
-  return Boolean(allowedRole === userRole)
+const validateUserHasAccesToView = (allowedRole: string): boolean => {
+  const authModule = authStore()
+  const userRole = authModule.getUserRole
+
+  const userHaveAccesToView = allowedRole === userRole
+  if (!userHaveAccesToView) {
+    throw new Error("Cannot Access View")
+  }
 }
 
-const createRoleGuard = (allowedRole: string) => {
-  return async (to: any, from: any, next: any) => {
-    const authModule = authStore()
-    const userRole = authModule.getUserRole
-
-    if (!validateUserHasAccesToView(allowedRole, userRole)) {
-      next({ name: 'AuthView' })
-      return
-    }
-
-    next()
+const requestProductsList = () => {
+  try {
+    const productModule = productStore()
+    productModule.requestProductsData()
+  } catch (error) {
+    throw error
   }
 }
 
@@ -31,13 +33,28 @@ const router = createRouter({
       path: '/products-management',
       name: 'ProductsManagement',
       component: () => import('@/views/ProductsManagementView.vue'),
-      beforeEnter: createRoleGuard('manager')
+      beforeEnter: async (to, from, next) => {
+        try {
+          validateUserHasAccesToView('manager')
+          requestProductsList()
+          next()
+        } catch {
+          next({ name: 'AuthView' })
+        }
+      }
     },
     {
       path: '/products-list',
       name: 'ProductsList',
       component: () => import('@/views/ProductsListView.vue'),
-      beforeEnter: createRoleGuard('client')
+      beforeEnter: async (to, from, next) => {
+        try {
+          validateUserHasAccesToView('client')
+          next()
+        } catch {
+          next({ name: 'AuthView' })
+        }
+      }
     },
     {
       path: '/:pathMatch(.*)*',

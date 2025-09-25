@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { authStore } from '@/stores/authStore';
 import { notificationStore } from '@/stores/notificationStore';
 import { computed, ref } from 'vue';
@@ -16,11 +16,11 @@ const name = ref()
 const userIsManager = ref(false)
 const formSection = ref('login')
 
-const handleFormSection = (section: string) => {
+const handleFormSection = (section) => {
     formSection.value = section
 }
 
-const validateFormData = (): boolean => {
+const validateFormData = () => {
     const formData = {
         email: email.value,
         password: password.value,

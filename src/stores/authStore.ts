@@ -10,8 +10,15 @@ export const authStore = defineStore('authStore', () => {
     const userData = ref<userInterface | undefined>(undefined)
     const userAuthToken = ref<string | undefined>(undefined)
 
+    const getUserName = computed(() => userData?.value?.name)
+    const getUserId = computed(() => userData?.value?.id)
     const getUserRole = computed(() => userData?.value?.role)
     const getAuthToken = computed(() => userAuthToken.value)
+
+    const resetModuleData = () => {
+        userData.value = undefined
+        userAuthToken.value = undefined
+    }
 
     const setUserToken = (authToken: string | undefined) => {
         userAuthToken.value = authToken || undefined
@@ -45,7 +52,14 @@ export const authStore = defineStore('authStore', () => {
         }
     }
 
+    const tryLogout = () => {
+        resetModuleData()
+    }
+
     return {
+        tryLogout,
+        getUserName,
+        getUserId,
         userData,
         userAuthToken,
         getAuthToken,
@@ -55,4 +69,4 @@ export const authStore = defineStore('authStore', () => {
         tryLogin,
         tryRegister
     }
-})
+}, { persist: true, })
