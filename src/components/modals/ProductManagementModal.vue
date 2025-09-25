@@ -13,71 +13,92 @@ const props = defineProps({
 const authModule = authStore()
 const productModule = productStore()
 const notificationModule = notificationStore()
+
 const productDataReference = computed(() => props.productData)
 const modalInUpdateMode = computed(() => !!productDataReference.value)
 const userId = computed(() => authModule.getUserId)
+
 const productName = ref(productDataReference.value?.name || null)
 const productAvailableStock = ref(productDataReference.value?.available_stock || 0)
 const productDescription = ref(productDataReference.value?.description || null)
 const productPrice = ref(productDataReference.value?.price || 0.0)
-const productPriceMock = ref(null)
-const moneyMaskSettings = { decimal: '.', thousands: ',', prefix: 'U$ ', precision: 2, masked: true }
+const productPriceMask = ref(null)
+
+const MONEY_MASK_SETTINGS = { decimal: '.', thousands: ',', prefix: 'U$ ', precision: 2, masked: true }
+const MINIMUM_PRICE_AND_AMOUNT = 1
+const MAXIMUM_PRICE_AND_AMOUNT = 2147483646
+const MAX_DESCRIPTION_LENGTH = 65535
 
 const validateProductData = () => {
-  const productsHash = { 
-    name: productName.value, 
-    price: productPrice.value, 
-    available_stock: productAvailableStock.value, 
-    description: productDescription.value 
-  }
-  const productKeys = Object.keys(productsHash)
-
-  for (let i = 0; i < productKeys.length; i ++) {
-    const key = productKeys[i]
-    if ( key !== 'description' && (productsHash[key] == null || productsHash[key] == undefined) ) {
-      notificationModule.activeErrorNotification("All Fields Are Required")
-      return false
+  const validations = [
+    {
+      condition: !productName.value?.trim(),
+      message: "Product name is required",
+      field: "name"
+    },
+    {
+      condition: !productPrice.value,
+      message: "Product price is required", 
+      field: "price"
+    },
+    {
+      condition: !productAvailableStock.value,
+      message: "Available stock is required",
+      field: "available_stock"
+    },
+    {
+      condition: productName.value?.length > 255,
+      message: "Product name max length is 255",
+      field: "name"
+    },
+    {
+      condition: productDescription.value?.length > MAX_DESCRIPTION_LENGTH,
+      message: `Description max length is ${MAX_DESCRIPTION_LENGTH}`,
+      field: "description"
+    },
+    {
+      condition: isNaN(Number(productPrice.value)),
+      message: "Price must be a valid number",
+      field: "price"
+    },
+    {
+      condition: Number(productPrice.value) < MINIMUM_PRICE_AND_AMOUNT,
+      message: `Insert a valid price! Minimum is U$${MINIMUM_PRICE_AND_AMOUNT}`,
+      field: "price"
+    },
+    {
+      condition: Number(productPrice.value) > MAXIMUM_PRICE_AND_AMOUNT,
+      message: `Insert a valid price! Maximum is U$${MAXIMUM_PRICE_AND_AMOUNT}`,
+      field: "price"
+    },
+    {
+      condition: isNaN(Number(productAvailableStock.value)),
+      message: "Stock must be a valid number", 
+      field: "available_stock"
+    },
+    {
+      condition: Number(productAvailableStock.value) < MINIMUM_PRICE_AND_AMOUNT,
+      message: `Insert a valid stock! Minimum is ${MINIMUM_PRICE_AND_AMOUNT}`,
+      field: "available_stock"
+    },
+    {
+      condition: Number(productAvailableStock.value) > MAXIMUM_PRICE_AND_AMOUNT,
+      message: `Insert a valid stock! Maximum is ${MAXIMUM_PRICE_AND_AMOUNT}`,
+      field: "available_stock"
     }
+  ];
 
-    if ( key !== 'description' && !productsHash[key].length > 255) {
-      const errorMessage = `${key} max length is 255`
-      notificationModule.activeErrorNotification(errorMessage)
-      return false
-    }
+  const failedValidation = validations.find(validation => validation.condition);
+  
+  if (failedValidation) {
+    notificationModule.activeErrorNotification(failedValidation.message);
+    return false;
   }
 
-  const MINIMUM_PRICE_AND_AMOUNT = 1
-  const MAX_PRICE_AND_AMOUNT = 2147483646
-  if (productPrice.value <= MINIMUM_PRICE_AND_AMOUNT) {
-    notificationModule.activeErrorNotification(`Inset A Valid Price! Minimum Is U$${MINIMUM_PRICE_AND_AMOUNT}`)
-    return false
-  }
+  return true;
+};
 
-  if (productPrice.value <= MINIMUM_PRICE_AND_AMOUNT) {
-    notificationModule.activeErrorNotification(`Insert A Valid Stock! Minimum Is ${MINIMUM_PRICE_AND_AMOUNT}`)
-    return false
-  }
-
-  if (productPrice.value > MAX_PRICE_AND_AMOUNT) {
-    notificationModule.activeErrorNotification(`Inset A Valid Price! Maximum Is U$${MAX_PRICE_AND_AMOUNT}`)
-    return false
-  }
-
-  if (productPrice.value > MAX_PRICE_AND_AMOUNT) {
-    notificationModule.activeErrorNotification(`Insert A Valid Stock! Maximum Is ${MAX_PRICE_AND_AMOUNT}`)
-    return false
-  }
-
-  const MAX_DESCRIPTION_LENGTH = 65535
-  if (productsHash?.description && productsHash.description.length > MAX_DESCRIPTION_LENGTH) {
-    notificationModule.activeErrorNotification(`Description Max Length Is ${MAX_DESCRIPTION_LENGTH}`)
-    return false
-  }
-
-  return true
-}
-
-const validateAvailableStockInput = (event) => {
+const handleAvailableStockInput = (event) => {
   const eventValue = event.target.value
   const regex = /^[0-9]+$/;
 
@@ -90,19 +111,18 @@ const validateAvailableStockInput = (event) => {
   productAvailableStock.value = null
 }
 
-const formatProductPriceMock = () => {
+const setProductPriceMaskValue = () => {
   if (!modalInUpdateMode.value) return 
-
-  productPriceMock.value = format(productPrice.value, moneyMaskSettingsmoneyConfig)
+  productPriceMask.value = format(productPrice.value, MONEY_MASK_SETTINGS)
 }
 
-const unformatProductPriceMock = () => {
-  productPrice.value = Number(unformat(productPriceMock.value, moneyMaskSettings))
+const setProductPriceValue = () => {
+  productPrice.value = Number(unformat(productPriceMask.value, MONEY_MASK_SETTINGS))
 }
 
-const closeAndClearProductToUpdate = () => {
+const closeModal = () => {
+  productDataReference.value && (emits('setProductDataToUpdate'))
   emits('handleProdutManagementModalState')
-  emits('setProductDataToUpdate')
 }
 
 const createProduct = async () => {
@@ -117,7 +137,7 @@ const createProduct = async () => {
   }
 
   const requestSucced = await productModule.requestCreateProduct(requestPayload)
-  requestSucced && (closeAndClearProductToUpdate())
+  requestSucced && (closeModal())
 }
 
 const updateProduct = async () => {
@@ -133,15 +153,15 @@ const updateProduct = async () => {
   }
 
   const requestSucced = await productModule.requestUpdateProduct(requestPayload)
-  requestSucced && (closeAndClearProductToUpdate())
+  requestSucced && (closeModal())
 }
 
-watch(productPriceMock, () => {
-  unformatProductPriceMock()
+watch(productPriceMask, () => {
+  setProductPriceValue()
 })
 
 onMounted(() => {
-  formatProductPriceMock()
+  setProductPriceMaskValue()
 })
 
 </script>
@@ -152,7 +172,7 @@ onMounted(() => {
     <div class="px-3 py-4 border-0 modal-content">
       <div class="modal-header d-flex align-items-center justify-content-between border-0">
         <h5 class="modal-title mb-0">{{  modalInUpdateMode ? 'Update' : 'Create'  }} Product</h5>
-        <button @click="closeAndClearProductToUpdate" class="border-0 bg-transparent">
+        <button @click="closeModal" class="border-0 bg-transparent">
           <i class="bi fs-5 bi-x-lg"></i>
         </button>
       </div>
@@ -164,13 +184,13 @@ onMounted(() => {
           </div>
           <div>
             <label>Price: </label>
-            <input v-money3="moneyMaskSettings" v-model.lazy="productPriceMock" class="form-control" />
+            <input v-money3="MONEY_MASK_SETTINGS" v-model.lazy="productPriceMask" class="form-control" />
           </div>
           <div>
             <label>Available Stock: </label>
             <input 
               :value="productAvailableStock"
-              @input="event => validateAvailableStockInput(event)" 
+              @input="event => handleAvailableStockInput(event)" 
               type="number" 
               step="1" 
               class="form-control" 
@@ -188,7 +208,7 @@ onMounted(() => {
         </form>
       </div>
       <div class="modal-footer border-0">
-        <button @click="closeAndClearProductToUpdate" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button @click="closeModal" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button @click="updateProduct" v-if="modalInUpdateMode" type="button" class="btn btn-dark">Update</button>
         <button @click="createProduct" v-else type="button" class="btn btn-dark">Create</button>
       </div>
