@@ -33,6 +33,22 @@ export const productStore = defineStore('productStore', () => {
         productIndex !== 1 && (productsData.value[productIndex] = data)
     }
 
+    const removeQuantityFromProductStock = (quantity, productId) => {
+        const productIndex = productsData.value.findIndex((product) => product.id === productId)
+        if (productIndex !== -1) {
+            productsData.value[productIndex].available_stock -= quantity
+            productsData.value[productIndex].reserved_stock += quantity
+        }
+    }
+
+    const insertQuantityInProductStock = (quantity, productId) => {
+        const productIndex = productsData.value.findIndex((product) => product.id === productId)
+        if (productIndex !== -1) {
+            productsData.value[productIndex].available_stock += quantity
+            productsData.value[productIndex].reserved_stock -= quantity
+        }
+    }
+
     const requestUpdateProduct = async (payload) => {
         try {
             const response = await productService.updateProduct(payload)
@@ -77,6 +93,8 @@ export const productStore = defineStore('productStore', () => {
     }
 
     return {
+        insertQuantityInProductStock,
+        removeQuantityFromProductStock,
         getActiveProductsAmount,
         requestUpdateProduct,
         requestCreateProduct,

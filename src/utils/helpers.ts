@@ -22,3 +22,12 @@ export const formatTimestamp = (timestampDate) => {
     const year = date.getFullYear();
     return `${month}/${day}/${year}`;
 }
+
+export const formatToAmericanNumber = (quantity) => {
+    const numberValue = parseFloat(quantity);
+
+    return isNaN(numberValue) ? quantity : numberValue.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}

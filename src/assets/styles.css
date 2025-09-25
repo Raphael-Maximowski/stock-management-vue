@@ -11,3 +11,12 @@
     box-shadow: none;
     border: 1px solid lightgray;
 }
+
+ul {
+    padding: 0px;
+    margin: 0px;
+}
+
+li {
+    list-style-type: none;
+}

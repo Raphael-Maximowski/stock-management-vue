@@ -1,4 +1,5 @@
 import { authStore } from '@/stores/authStore'
+import { cartStore } from '@/stores/cartStore'
 import { productStore } from '@/stores/productStore'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -21,6 +22,22 @@ const requestProductsList = () => {
   }
 }
 
+const handleUserCart = async () => {
+  const cartModule = cartStore()
+  const authModule = authStore()
+  const userId = authModule.getUserId
+
+  try {
+    const userCartExists = await cartModule.findUserCart(userId)
+    if (!userCartExists) {
+      cartModule.createUserCart({ user_id: userId })
+    }
+  } catch (error) {
+    throw error
+  }
+  
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -35,8 +52,9 @@ const router = createRouter({
       component: () => import('@/views/ProductsManagementView.vue'),
       beforeEnter: async (to, from, next) => {
         try {
-          validateUserHasAccesToView('manager')
-          requestProductsList()
+          await validateUserHasAccesToView('manager')
+          await requestProductsList()
+
           next()
         } catch {
           next({ name: 'AuthView' })
@@ -49,7 +67,10 @@ const router = createRouter({
       component: () => import('@/views/ProductsListView.vue'),
       beforeEnter: async (to, from, next) => {
         try {
-          validateUserHasAccesToView('client')
+          await validateUserHasAccesToView('client')
+          await requestProductsList()
+          await handleUserCart()
+
           next()
         } catch {
           next({ name: 'AuthView' })
