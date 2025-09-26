@@ -1,14 +1,13 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import authService from "@/services/authService";
-import type { loginPayload, userInterface } from "@/typescript/interfaces/authInterfaces";
 import { notificationStore } from "./notificationStore";
 
 export const authStore = defineStore('authStore', () => {
     const notificationModule = notificationStore()
 
-    const userData = ref<userInterface | undefined>(undefined)
-    const userAuthToken = ref<string | undefined>(undefined)
+    const userData = ref(undefined)
+    const userAuthToken = ref(undefined)
 
     const getUserName = computed(() => userData?.value?.name)
     const getUserId = computed(() => userData?.value?.id)
@@ -20,15 +19,15 @@ export const authStore = defineStore('authStore', () => {
         userAuthToken.value = undefined
     }
 
-    const setUserToken = (authToken: string | undefined) => {
+    const setUserToken = (authToken) => {
         userAuthToken.value = authToken || undefined
     }
 
-    const setUserData = (data: userInterface | undefined) => {
+    const setUserData = (data) => {
         userData.value = data || undefined
     }
 
-    const tryLogin = async (payload: loginPayload) => {
+    const tryLogin = async (payload) => {
         try {
             const response = await authService.tryLogin(payload)
             setUserData(response?.user)

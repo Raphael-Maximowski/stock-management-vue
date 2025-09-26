@@ -3,7 +3,7 @@ import { cartStore } from '@/stores/cartStore'
 import { productStore } from '@/stores/productStore'
 import { createRouter, createWebHistory } from 'vue-router'
 
-const validateUserHasAccesToView = (allowedRole: string): boolean => {
+const validateUserHasAccesToView = (allowedRole) => {
   const authModule = authStore()
   const userRole = authModule.getUserRole
 
