@@ -79,6 +79,7 @@ export const cartStore = defineStore('cartStore', () => {
 
     const createUserCart = async (payload) => {
         try {
+
             const response = await cartService.createUserCart(payload)
             setUserCartData(response)
         } catch (error) {
@@ -90,6 +91,7 @@ export const cartStore = defineStore('cartStore', () => {
         try {
             const response = await cartService.insertProductInCart(payload)
             insertProductData({ ...response, quantity_insert: payload.quantity })
+            notificationModule.activeSuccessNotification("Product Insert In Cart!")
             return true
         } catch (error) {
             notificationModule.activeErrorNotification(error)
@@ -101,6 +103,7 @@ export const cartStore = defineStore('cartStore', () => {
         try {
             await cartService.removeProducts(payload)
             removeProductData(payload)
+            notificationModule.activeSuccessNotification("Product Removed From Cart!")
             return true
         } catch (error) {
             return false
@@ -109,9 +112,9 @@ export const cartStore = defineStore('cartStore', () => {
 
     const removeAllProductsFromCart = async (payload) => {
         try {
-            const productsToUpdateAvailableStock = userCartProducts.value.map((productData) => 
+            const productsToUpdateAvailableStock = userCartProducts.value.map((productData) =>
                 ({ product_id: productData.product.id, quantity: productData.quantity }))
-            
+
             await cartService.removeAllProducts(payload)
             resetCartData()
 
@@ -119,6 +122,7 @@ export const cartStore = defineStore('cartStore', () => {
                 productModule.insertQuantityInProductStock(productToUpdate.quantity, productToUpdate.product_id)
             })
 
+            notificationModule.activeSuccessNotification("Products Removed From Cart!")
             return true
         } catch (error) {
             notificationModule.activeErrorNotification(error)
@@ -130,7 +134,8 @@ export const cartStore = defineStore('cartStore', () => {
         try {
             await cartService.tryCheckout(payload)
             resetCartData()
-            await cartService.createUserCart(payload)
+            await createUserCart(payload)
+            notificationModule.activeSuccessNotification("Checkout Done!")
             return true
         } catch (error) {
             notificationModule.activeErrorNotification(error)

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { cartStore } from '@/stores/cartStore';
 import { notificationStore } from '@/stores/notificationStore';
 import { productStore } from '@/stores/productStore';

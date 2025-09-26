@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { cartStore } from '@/stores/cartStore';
 import { computed, onMounted, ref } from 'vue';
 import CartCard from '../cards/CartCard.vue';

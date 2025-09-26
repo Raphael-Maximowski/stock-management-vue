@@ -1,15 +1,15 @@
 import { defineStore } from "pinia";
-import { toast, type ToastOptions } from 'vue3-toastify';
+import { toast } from 'vue3-toastify';
 
 export const notificationStore = defineStore('notificationStore', () => {
 
-    const activeSuccessNotification = (text: string) => {
+    const activeSuccessNotification = (text) => {
         toast(text, {
             type: 'success'
         })
     }
 
-    const activeErrorNotification = (text: string) => {
+    const activeErrorNotification = (text) => {
         toast(text, {
             type: 'error'
         })

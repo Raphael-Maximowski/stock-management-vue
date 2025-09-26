@@ -86,4 +86,11 @@ button {
     width: 300px;
     height: 400px;
 }
+
+@media(max-width: 700px) {
+    .cart-container {
+        width: 250px;
+        height: 400px;
+    }
+}
 </style>
