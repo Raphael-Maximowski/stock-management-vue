@@ -6,6 +6,7 @@ import { computed } from 'vue';
 const emits = defineEmits(['handleProdutManagementModalState', 'setProductDataToUpdate'])
 
 const productModule = productStore()
+
 const productsData = computed(() => productModule.getProductsData)
 
 const confirmProductDeletion = () => {

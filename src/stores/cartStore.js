@@ -8,13 +8,19 @@ export const cartStore = defineStore('cartStore', () => {
     const notificationModule = notificationStore()
     const productModule = productStore()
 
+    // State
+
     const userCart = ref({})
     const userCartProducts = ref([])
+
+    // Getters
 
     const getCartId = computed(() => userCart.value?.id)
     const getCartTotalAmount = computed(() => userCart.value?.total_amount)
     const getCartTotalProductAmount = computed(() => userCart.value?.total_items)
     const getCartProducts = computed(() => userCartProducts.value)
+
+    // Mutations
 
     const removeProductData = (productData) => {
         const productIndex = userCartProducts.value.findIndex((productRegister) => productRegister.product.id === productData.product_id)
@@ -86,6 +92,8 @@ export const cartStore = defineStore('cartStore', () => {
             notificationModule.activeErrorNotification(error)
         }
     }
+
+    // Actions
 
     const insertProductInCart = async (payload) => {
         try {

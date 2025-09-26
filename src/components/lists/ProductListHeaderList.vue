@@ -5,9 +5,11 @@ import CartCard from '../cards/CartCard.vue';
 import { formatToAmericanNumber } from '@/utils/helpers';
 
 const cartModule = cartStore()
+
 const cartTotalValue = computed(() => cartModule.getCartTotalAmount)
 const cartTotalProductAmount = computed(() => cartModule.getCartTotalProductAmount)
 const formattedTotalValue = computed(() => formatToAmericanNumber(cartTotalValue.value))
+
 const renderCartCard = ref(false)
 
 const handleCartCardState = () => {

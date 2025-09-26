@@ -15,13 +15,15 @@ const props = defineProps({
 const cartModule = cartStore()
 const notificationModule = notificationStore()
 const productModule = productStore()
+
 const productDataReference = computed(() => props.productData)
 const productTotalPrice = computed(() => productDataReference.value.product.price * productDataReference.value.quantity)
 const formattedTotalPrice = computed(() => formatToAmericanNumber(productTotalPrice.value || 0))
+
 const quantityToRemove = ref(0)
 const cardInRemoveContext = ref(false)
 
-const handleCarInRemoveContext = () => {
+const handleCardInRemoveContext = () => {
     cardInRemoveContext.value = !cardInRemoveContext.value
 }
 
@@ -38,7 +40,7 @@ const handleQuantityToRemoveInput = (event) => {
 }
 
 const resetDataRelatedToRemoveProduct = () => {
-    handleCarInRemoveContext()
+    handleCardInRemoveContext()
     quantityToRemove.value = 0
 }
 
@@ -78,7 +80,7 @@ const removeProductFromCart = async (quantity = quantityToRemove.value) => {
             <p class="mb-0 overflow-hidden">Quantity: {{ productDataReference?.quantity || 0 }}</p>
 
             <div class="d-flex mt-2">
-                <button @click="handleCarInRemoveContext" v-if="!cardInRemoveContext" class="py-1 btn-danger btn">
+                <button @click="handleCardInRemoveContext" v-if="!cardInRemoveContext" class="py-1 btn-danger btn">
                     Remove Product
                 </button>
 
@@ -92,7 +94,7 @@ const removeProductFromCart = async (quantity = quantityToRemove.value) => {
                     <button @click="removeProductFromCart(productDataReference?.quantity)" class="remove-product-button py-1 btn-danger btn">
                         Remove All
                     </button> 
-                    <button @click="handleCarInRemoveContext" class="remove-product-button py-1 btn-secondary btn">
+                    <button @click="handleCardInRemoveContext" class="remove-product-button py-1 btn-secondary btn">
                         Cancel
                     </button> 
                 </div>
