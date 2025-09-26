@@ -1,5 +1,5 @@
 <script setup>
-import ProductsManagementHeader from '@/components/headers/ProductsManagementHeader.vue';
+import Header from "@/components/headers/Header.vue"
 import ProductManagementModal from '@/components/modals/ProductManagementModal.vue';
 import ProductsTable from '@/components/tables/ProductsTable.vue';
 import { ref } from 'vue';
@@ -19,7 +19,7 @@ const setProductDataToUpdate = (productData = null) => {
 
 <template>
     <div class="h-100 w-100 d-flex flex-column gap-4">
-        <ProductsManagementHeader />
+        <Header />
         <ProductsTable 
             @handleProdutManagementModalState="handleProdutManagementModalState"
             @setProductDataToUpdate="setProductDataToUpdate"
