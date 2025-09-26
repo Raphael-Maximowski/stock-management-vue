@@ -5,28 +5,50 @@ import { notificationStore } from '@/stores/notificationStore';
 import { productStore } from '@/stores/productStore';
 import { computed, ref } from 'vue';
 
+const props = defineProps({
+    product: { type: Object }
+})
+
 const productModule = productStore()
 const cartModule = cartStore()
 const notificationModule = notificationStore()
 const authModule = authStore()
-
-const props = defineProps({
-    product: { type: Object }
-})
 
 const userId = computed(() => authModule.getUserId)
 const cartId = computed(() => cartModule.getCartId)
 const productReference = computed(() => props.product)
 const renderInsertInCartButton = computed(() => typeof productAmountSelected.value === 'number' 
 && productAmountSelected.value > 0)
+
 const productAmountSelected = ref(0)
 
-const decrementProductAmount = () => {
-    if (productAmountSelected.value <= 0) {
+const validateProductAmount = (productAmount = productAmountSelected.value) => {
+    const formattedAmount = Number(productAmount)
+    if (formattedAmount < 0) {
         notificationModule.activeErrorNotification("Cannot Decrement Zero")
-        return
+        return false
     }
+
+    if (formattedAmount > productReference.value?.available_stock) {
+        notificationModule.activeErrorNotification("Product Available Stock Is Over")
+        return false
+    }
+
+    return true
+}
+
+const decrementProductAmount = () => {
+    const tagetValue = productAmountSelected.value - 1
+    if (!validateProductAmount(tagetValue)) return
+
     productAmountSelected.value--
+}
+
+const incrementProductAmount = () => {
+    const targetValue = productAmountSelected.value + 1
+    if (!validateProductAmount(targetValue)) return
+
+    productAmountSelected.value++
 }
 
 const handleProductAmount = (event) => {
@@ -39,30 +61,6 @@ const handleProductAmount = (event) => {
   }
 
   event.target.value = ''
-}
-
-const incrementProductAmount = () => {
-    const targetValue = productAmountSelected.value + 1
-    if (targetValue > productReference.value.available_stock) {
-        notificationModule.activeErrorNotification("Product Available Stock Is Over")
-        return
-    }
-    productAmountSelected.value = targetValue
-}
-
-const validateProductAmount = () => {
-    const formattedAmount = Number(productAmountSelected.value)
-    if (formattedAmount < 0) {
-        notificationModule.activeErrorNotification("Cannot Decrement Zero")
-        return false
-    }
-
-    if (formattedAmount > productReference.value?.available_stock) {
-        notificationModule.activeErrorNotification("Product Available Stock Is Over")
-        return false
-    }
-
-    return true
 }
 
 const resetProductAmountSelected = () => {

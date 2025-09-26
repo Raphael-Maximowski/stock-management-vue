@@ -12,6 +12,7 @@ defineProps({
 
 const authModule = authStore()
 const cartModule = cartStore()
+
 const cartProducts = computed(() => cartModule.getCartProducts)
 const renderManipulateCardButtons = computed(() => Array.isArray(cartProducts.value) && cartProducts.value.length > 0 )
 const userId = computed(() => authModule.getUserId)
