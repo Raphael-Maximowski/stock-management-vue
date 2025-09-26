@@ -6,13 +6,19 @@ import { notificationStore } from "./notificationStore";
 export const authStore = defineStore('authStore', () => {
     const notificationModule = notificationStore()
 
+    // State
+
     const userData = ref(undefined)
     const userAuthToken = ref(undefined)
+
+    // Getters
 
     const getUserName = computed(() => userData?.value?.name)
     const getUserId = computed(() => userData?.value?.id)
     const getUserRole = computed(() => userData?.value?.role)
     const getAuthToken = computed(() => userAuthToken.value)
+
+    // Mutations
 
     const resetModuleData = () => {
         userData.value = undefined
@@ -26,6 +32,8 @@ export const authStore = defineStore('authStore', () => {
     const setUserData = (data) => {
         userData.value = data || undefined
     }
+
+    // Actions
 
     const tryLogin = async (payload) => {
         try {

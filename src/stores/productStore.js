@@ -8,8 +8,12 @@ export const productStore = defineStore('productStore', () => {
 
     const productsData = ref([])
 
+    // Getters
+
     const getProductsData = computed(() => productsData.value)
     const getActiveProductsAmount = computed(() => productsData.value.length)
+
+    // Mutations
 
     const insertProductData = (data) => {
         data && (productsData.value.push(data))
@@ -48,6 +52,8 @@ export const productStore = defineStore('productStore', () => {
             productsData.value[productIndex].reserved_stock -= quantity
         }
     }
+
+    // Actions
 
     const requestUpdateProduct = async (payload) => {
         try {

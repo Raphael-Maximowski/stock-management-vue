@@ -5,6 +5,7 @@ import { productStore } from "@/stores/productStore";
 import { computed } from "vue";
 
 const productModule = productStore()
+
 const productsData = computed(() => productModule.getProductsData)
 
 </script>

@@ -7,8 +7,10 @@ import { useRouter } from 'vue-router';
 const notificationModule = notificationStore()
 const authModule = authStore()
 const router = useRouter()
+
 const userRole = computed(() => authModule.getUserRole)
 const formInLoginSection = computed(() => formSection.value === 'login')
+
 const email = ref()
 const password = ref()
 const passwordConfirmation = ref()
